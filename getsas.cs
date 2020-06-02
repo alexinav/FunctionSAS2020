@@ -11,9 +11,9 @@ using Newtonsoft.Json;
 
 namespace FunctionSAS2020
 {
-    public static class Function1
+    public static class getsas
     {
-        [FunctionName("Function1")]
+        [FunctionName("getSAS")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
