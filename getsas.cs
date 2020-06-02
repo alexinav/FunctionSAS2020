@@ -1,34 +1,30 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-//hhh
+﻿using System.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace FunctionSAS2020
 {
-    public static class getsas
+    public class GetSas
     {
-        [FunctionName("getSAS")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
-            ILogger log)
+        public string Do()
         {
-            log.LogInformation("C# HTTP trigger function processed a request.");
+            //var sas = string.Empty;
+            //var sas = "Esto no está vacio";
 
-            string name = req.Query["name"];
+            //var sas = "es una frase";
+            var storageAccount = new Connection().Create();
+            var blobClient = storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference("containimg1");
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            SharedAccessBlobPolicy adHocPolicy = new SharedAccessBlobPolicy()
+            {
+                SharedAccessExpiryTime = System.DateTime.UtcNow.AddHours(1),
+                Permissions = SharedAccessBlobPermissions.Read | SharedAccessBlobPermissions.List
+            };
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+            var sas = container.GetSharedAccessSignature(adHocPolicy, "containimg1");
+
+            return sas;
         }
     }
 }
